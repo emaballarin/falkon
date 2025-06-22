@@ -145,14 +145,14 @@ def get_extensions():
 
 # Requirements
 install_requires = [
-    "torch>=1.13",
+    "torch>=2.7.1",
     "scipy",
     "numpy",
     "scikit-learn",
     "wheel",
     "psutil",
-    "keopscore>=2.2",
-    "pykeops>=2.2",
+    "keopscore>=2.3",
+    "pykeops>=2.3",
 ]
 test_requires = [
     "pandas",
@@ -171,7 +171,7 @@ doc_requires = [
     "matplotlib",
     "jupyter",
     "ghp-import",
-    # Also pandoc, must be installed system-wide with apt
+    "pandoc>=2.4",
 ]
 
 setup(
@@ -181,7 +181,7 @@ setup(
     author_email="giacomo.meanti@iit.it",
     url="https://falkonml.github.io/falkon/",
     description="Fast, GPU enabled, approximate kernel ridge regression solver.",
-    python_requires=">=3.8",
+    python_requires=">=3.12",
     tests_require=test_requires,
     extras_require={"test": test_requires, "doc": doc_requires},
     install_requires=install_requires,
