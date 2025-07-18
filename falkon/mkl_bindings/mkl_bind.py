@@ -256,15 +256,15 @@ class Mkl:
         then converting it to CSR format and making sure is has not raised an exception.
         """
         test_array: scipy.sparse.csc_matrix = scipy.sparse.random(
-            5, 5, density=0.5, format="csr", dtype=np.float64, random_state=50
-        )
-        test_comparison = test_array.A
+            5, 5, density=0.5, format="csr", dtype=np.float64, rng=np.random.default_rng(50)
+        )  # type: ignore
+        test_comparison = test_array.toarray()
         csc_ref = None
         try:
             csc_ref = self.mkl_create_sparse_from_scipy(test_array)
             csr_ref = self.mkl_convert_csr(csc_ref)
             final_array = self.mkl_export_sparse(csr_ref, torch.float64, "csr")
-            if not np.allclose(test_comparison, final_array.to_scipy().A):
+            if not np.allclose(test_comparison, final_array.to_scipy().toarray()):
                 raise ValueError("Dtype is not valid.")
             self.mkl_sparse_destroy(csr_ref)
         finally:
@@ -465,7 +465,7 @@ class Mkl:
                 fn = self.libmkl.mkl_sparse_s_export_csr
                 ctype = ctypes.c_float
             else:
-                raise TypeError("Data type %s not valid to export" % (dtype))
+                raise TypeError(f"Data type {dtype} not valid to export")
         elif output_type.lower() == "csc":
             if dtype == torch.float64:
                 fn = self.libmkl.mkl_sparse_d_export_csc
@@ -474,9 +474,9 @@ class Mkl:
                 fn = self.libmkl.mkl_sparse_s_export_csc
                 ctype = ctypes.c_float
             else:
-                raise TypeError("Data type %s not valid to export" % (dtype))
+                raise TypeError(f"Data type {dtype} not valid to export")
         else:
-            raise ValueError("Output type %s not valid" % (output_type))
+            raise ValueError(f"Output type {output_type} not valid")
 
         data_ptr = ctypes.POINTER(ctype)()
 
@@ -507,8 +507,8 @@ class Mkl:
         nnz = indptren[-1] - indptrb[0]
 
         # Construct numpy arrays from data pointer and from indicies pointer
-        data = np.array(as_array(data_ptr, shape=(nnz,)), copy=True)
-        indices = np.array(as_array(indices, shape=(nnz,)), copy=True)
+        data = np.asarray(as_array(data_ptr, shape=(nnz,)), copy=True)
+        indices = np.asarray(as_array(indices, shape=(nnz,)), copy=True)
 
         return SparseTensor(
             indexptr=torch.from_numpy(indptren).to(torch.long),
@@ -630,7 +630,7 @@ class Mkl:
             fn = self.libmkl.mkl_sparse_d_spmmd
             output_ctype = ctypes.c_double
         else:
-            raise TypeError("Data type %s not valid for SPMMD" % (out.dtype))
+            raise TypeError(f"Data type {out.dtype} not valid for SPMMD")
 
         out_ptr = ctypes.cast(out.data_ptr(), ctypes.POINTER(output_ctype))
         ret_val = fn(

@@ -207,7 +207,7 @@ class TestPotrf:
         return exp_lower.T
 
     def test_upper(self, mat, exp_upper, clean, overwrite, order, dtype):
-        mat = fix_mat(mat, order=order, dtype=dtype, copy=False, numpy=False)
+        mat = fix_mat(mat, order=order, dtype=dtype, numpy=False)
         inpt = mat.clone()
         assert inpt.stride() == mat.stride()
 
@@ -225,7 +225,7 @@ class TestPotrf:
             torch.testing.assert_close(torch.tril(mat, -1), torch.tril(our_chol, -1))
 
     def test_lower(self, mat, exp_lower, clean, overwrite, order, dtype):
-        mat = fix_mat(mat, order=order, dtype=dtype, copy=False, numpy=False)
+        mat = fix_mat(mat, order=order, dtype=dtype, numpy=False)
         inpt = mat.clone()
         assert inpt.stride() == mat.stride()
 
@@ -256,7 +256,7 @@ def test_potrf_speed():
     np_time = time.time() - t_s
 
     np.testing.assert_allclose(np_chol, our_chol, rtol=1e-5)
-    print("Time for cholesky(%d): Numpy %.2fs - Our %.2fs" % (t, np_time, our_time))
+    print(f"Time for cholesky({t}): Numpy {np_time:.2f}s - Our {our_time:.2f}s")
 
 
 @pytest.mark.parametrize("preserve_diag", [True, False], ids=["preserve", "no-preserve"])
@@ -465,5 +465,5 @@ class TestVecMulTriang:
             torch.cuda.synchronize()
             gpu_times.append(time.time() - t_s)
 
-        print("mat size %d - t_cpu: %.4fs -- t_cuda: %.4fs" % (t, np.min(cpu_times), np.min(gpu_times)))
+        print(f"mat size {t} - t_cpu: {np.min(cpu_times):.4f}s -- t_cuda: {np.min(gpu_times):.4f}s")
         torch.testing.assert_close(out_cpu, out_cuda.cpu())

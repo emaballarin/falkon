@@ -1,7 +1,7 @@
 import dataclasses
 import time
 import warnings
-from typing import Callable, Optional, Tuple, Union, Any
+from typing import Any, Callable, Optional, Tuple, Union
 
 import torch
 from torch import Tensor
@@ -155,7 +155,8 @@ class Falkon(FalkonBase):
         with TicToc(f"Calcuating Preconditioner of size {num_centers}", debug=self.options.debug):
             pc_opt: FalkonOptions = dataclasses.replace(self.options, use_cpu=not use_cuda_pc)
             if pc_opt.debug:
-                print("Preconditioner will run on %s" % ("CPU" if pc_opt.use_cpu else ("%d GPUs" % self.num_gpus)))
+                dev_str = "CPU" if pc_opt.use_cpu else f"{self.num_gpus} GPUs"
+                print(f"Preconditioner will run on {dev_str}")
             pc = FalkonPreconditioner(self.penalty, self.kernel, pc_opt)
             ny_weight_vec = None
             if self.weight_fn is not None:
